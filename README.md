@@ -23,13 +23,21 @@ The plugin has several parts, introduced below.
 # Create Unique-Reachable (UR) Subgraph
 Unique-Reachable nodes are all nodes reachable in the graph from a given start node and that are not reachable from any nodes not currently in the UR set. For example in Figure 3, all of the unique-reachable nodes starting at the green node are highlighted in blue. The grey node is reachable from the green node, but because it is reachable from other nodes not in the current UR set it is pruned prior to group creation.
 
+ 
+>    unique- available节点是图中从一个给定的起始节点可以到达的所有节点，而目前在UR集合中没有任何节点可以到达这些节点。例如，在图3中，从绿色节点开始的所有unique- available节点都用蓝色高亮显示。灰色节点可以从绿色节点访问，但是因为它可以从当前UR集中之外的其他节点访问，所以在创建组之前会对其进行修剪。
+
+
 ![Figure 3: Example Unique Reachable selection](pics/fig_3_case_selection_a_50.png)
  
 Figure 3: Example Unique Reachable selection
 
 The plugin allows you to easily create a new group based on the UR definition. Select a node in IDA's graph view to be the start of the reachable search. Right click and select "SimplifyGraph --> Create unique-reachable group". The plugin performs a graph traversal starting at this node, identifies all reachable nodes, and prunes any nodes (and their reachable nodes) that have predecessor nodes not in the current set. It then prompts you for the node text to appear in the new group node.
 
+> 该插件允许您轻松地基于UR定义创建一个新的组。在IDA的图形视图中选择一个节点作为可达搜索的开始。右击并选择“SimplifyGraph—> Create unique- available group”。插件从这个节点开始执行一个图遍历，标识所有可到达的节点，并删除当前集合中没有前任节点的任何节点(及其可到达节点)。然后，它会提示您将节点文本显示在新的组节点中。
+
 If you select more than one node (by holding the Ctrl key when selecting nodes) for the UR algorithm, each additional node acts as a sentry node. Sentry nodes will not be included in the new group, and they halt the graph traversal when searching for reachable nodes. For example in Figure 4, selecting the green node first treats it as the starting node, and selecting the red node second treats it as a sentry node. Running the “Create unique-reachable group” plugin option creates a new group made of the green node and all blue nodes. This can be useful when you are done analyzing a subset of the current graph, and wish to hide the details behind a group node so you can concentrate on the rest of the graph.
+
+> 如果您为UR算法选择多个节点(通过在选择节点时按住Ctrl键)，每个额外的节点都充当哨兵节点。岗哨节点将不包含在新组中，并且当搜索可到达节点时，它们将停止图的遍历。例如，在图4中，首先选择绿色节点作为起始节点，然后选择红色节点作为哨兵节点。运行“Create unique- available group”插件选项将创建一个由绿色节点和所有蓝色节点组成的新组。当您完成了对当前图的子集的分析，并希望将详细信息隐藏在组节点后面，以便集中精力处理图的其余部分时，这将非常有用。
  
 ![Figure 4: Unique reachable with sentry](pics/fig_4_function_init_with_sentry_a_min_50.png)
 
@@ -37,9 +45,13 @@ Figure 4: Unique reachable with sentry
 
 The UR algorithm operates on the currently visible graph, meaning that you can run the UR algorithm repeatedly and nest groups.
 
+> UR算法对当前可见的图进行操作，这意味着您可以重复运行UR算法并嵌套组。
+
 # Switch case groups creation
 
 Switch statements implemented as jump tables appear in the graph as nodes with a large fan-out, as shown in Figure 5. The SimplifyGraph plugin detects when the currently selected node has more than two successor nodes and adds a right-click menu option “SimplifyGraph --> Create switch case subgraphs”. Selecting this runs the Unique-Reachable algorithm on each separate case branch and automatically uses IDA’s branch label as the group node text.
+
+> 作为跳转表实现的Switch语句在图中显示为具有较大扇出的节点，如图5所示。SimplifyGraph插件检测当前选择的节点何时具有两个以上的后继节点，并添加一个右键菜单选项“SimplifyGraph—> Create switch case subgraphs”。选择它将在每个单独的case分支上运行惟一可达算法，并自动使用IDA的分支标签作为组节点文本。
 
 ![Figure 5: Switch jumptable use](pics/fig_5_switch_jump_closeup_70.png)
 
@@ -55,7 +67,11 @@ Figure 6: Before and after of switch statement groupings
 
 Running Edit --> Plugins --> SimplifyGraph brings up a new chooser named "SimplifyGraph - Isolated subgraphs" that begins showing what I call isolated subgraphs of the current graph. A full definition appears later in the appendix including how these are calculated, but the gist is that an isolated subgraph in a directed graph is a subset of nodes and edges such that there is a single entrance node, a single exit node, and none of the nodes (other than the subgraph entry node) are reachable by nodes not in the subgraph. 
 
+> 运行Edit——> Plugins——> SimplifyGraph会弹出一个名为“SimplifyGraph - independent subgraphs”的新选择器，它开始显示我所说的当前图的独立子图。完整的定义出现在附录中包括这些是如何计算,但主旨是一个孤立子图有向图中的节点和边的一个子集,这样只有一个入口节点,一个退出节点,所有的节点(除了子图输入节点)是由节点没有子图可及。
+
 Finding isolated subgraphs was originally researched to help automatically identify inline functions. It does this, but it turns out that this graph construct occurs naturally in code without inline functions. This isn’t a bad thing as it shows a natural grouping of nodes that could be a good candidate to group to help simplify the overall graph and make analysis easier.
+
+> 寻找独立子图最初是为了帮助自动识别内联函数。它做到了这一点，但事实证明，这个图结构在没有内联函数的代码中很自然地出现。这并不是一件坏事，因为它显示了节点的自然分组，这可能是一个很好的候选分组，以帮助简化整个图并使分析更容易。
 
 Once the chooser is active, you can double click (or press Enter) on a row in the chooser to highlight the nodes that make up the subgraph. You can create a group for an isolated subgraph by doing one of: 
 
